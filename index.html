@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generador de Datos — Creado por William Campal</title>
+<style>
+:root{--primary:#2c3e50;--secondary:#3498db;--danger:#e74c3c}
+body{font-family:Inter,"Segoe UI",Tahoma,sans-serif;background:#f4f6f8;margin:0;color:#222}
+header{background:var(--primary);color:#fff;padding:14px;text-align:center}
+header h1{margin:0;font-size:18px}
+.container{max-width:1100px;margin:12px auto;padding:0 12px}
+.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+label{display:block;font-weight:600;margin-top:10px}
+textarea,input,select{width:100%;padding:10px;border:1px solid #dcdfe6;border-radius:6px;font-size:14px;box-sizing:border-box}
+.btn{background:var(--secondary);color:#fff;border:0;padding:10px 12px;border-radius:6px;margin:6px 6px 6px 0;cursor:pointer}
+.btn-danger{background:var(--danger)}
+.out{background:#fbfdff;border:1px solid #e6eef9;padding:10px;border-radius:6px;min-height:160px;white-space:pre-wrap;font-family:monospace}
+.small{font-size:13px;color:#555;margin-top:6px}
+footer{padding:12px;text-align:center;font-size:13px;color:#666}
+fieldset{border:1px solid #e3e6ea;border-radius:8px;padding:8px;margin-top:10px}
+legend{font-weight:700}
+@media(max-width:800px){header h1{font-size:16px}.btn{width:48%;margin:6px 1%}}
+</style>
+</head>
+<body>
+<header><h1>Generador de Datos — Creado por William Campal</h1></header>
+
+<div class="container">
+
+<!-- =================== PROCESAR DESDE EXCEL =================== -->
+<div class="card">
+  <h3>📋 Procesar desde Excel (todas las hojas excepto QC-ICP / QC-AA)</h3>
+  <label>Seleccionar plantilla</label>
+  <select id="sheetType">
+    <option value="203">203</option>
+    <option value="302">302</option>
+    <option value="402-403">402-403</option>
+    <option value="brine">BRINE</option>
+    <option value="li2co3">Li₂CO₃</option>
+    <option value="reporte_id">Reporte I+D</option>
+  </select>
+
+  <label>Pegar filas copiadas desde Excel</label>
+  <textarea id="excelData" placeholder="Pega aquí las filas copiadas desde Excel..."></textarea>
+
+  <div>
+    <button class="btn" onclick="pegarDesdePortapapeles()">📋 Pegar</button>
+    <button class="btn" onclick="procesarExcel()">⚙️ Procesar</button>
+    <button class="btn btn-danger" onclick="limpiar()">🧹 Limpiar</button>
+  </div>
+
+  <label>Salida generada</label>
+  <div id="salida" class="out">Aquí aparecerá el texto listo para copiar o enviar por WhatsApp.</div>
+
+  <div>
+    <button class="btn" onclick="copiarSalida()">📄 Copiar</button>
+    <button class="btn" onclick="abrirWhatsappPrimerRegistro()">💬 WhatsApp</button>
+  </div>
+  <div id="reportSkipped" class="small"></div>
+</div>
+
+<!-- =================== SECCIÓN MANUAL =================== -->
+<div class="card">
+  <h3>🧪 Crear muestra manual</h3>
+
+  <label>Tipo de muestra</label>
+  <select id="tipoManual" onchange="actualizarUnidades()">
+    <option value="liquido">Líquido</option>
+    <option value="solido">Sólido</option>
+  </select>
+
+  <fieldset>
+    <legend>Seleccionar analitos</legend>
+    <div id="analitosSelect" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </fieldset>
+
+  <label>Identificación</label>
+  <input id="identManual" placeholder="Ej: 203-R001-211025-08:55"/>
+
+  <label>Código</label>
+  <input id="codigoManual" placeholder="Ej: F-203-SM-211025-27"/>
+
+  <div id="analitosCampos"></div>
+
+  <div>
+    <button class="btn" onclick="generarManual()">Generar formato</button>
+    <button class="btn btn-danger" onclick="borrarManual()">Borrar</button>
+  </div>
+
+  <label>Salida manual</label>
+  <div id="salidaManual" class="out"></div>
+  <div>
+    <button class="btn" onclick="copiarManual()">📋 Copiar</button>
+    <button class="btn" onclick="whatsappManual()">💬 WhatsApp</button>
+  </div>
+</div>
+
+<!-- =================== TUTORIAL =================== -->
+<div class="card">
+  <h3>📘 Cómo usar</h3>
+  <div class="small">1️⃣ Copiá filas desde Excel (Ctrl+C) y pegá aquí. Evita las hojas QC-ICP y QC-AA.</div>
+  <div class="small">2️⃣ Presioná <strong>Procesar</strong> para generar los formatos listos.</div>
+  <div class="small">3️⃣ En la sección manual podés crear muestras nuevas seleccionando tipo y analitos.</div>
+  <div class="small">4️⃣ Escribí “N/D” si no hay dato; se mostrará tal cual.</div>
+  <div class="small">5️⃣ Copiá o envía por WhatsApp con un clic.</div>
+</div>
+
+<footer>Generador de Datos — Creado por William Campal © 2025</footer>
+</div>
+
+<script>
+/* =================== CONFIGURACIÓN DE PLANTILLAS =================== */
+const plantillas={
+"203":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"B",i:2,u:"mg/L"},
+ {nombre:"Ca",i:3,u:"mg/L"},
+ {nombre:"K",i:4,u:"mg/L"},
+ {nombre:"Li",i:5,u:"mg/L"},
+ {nombre:"Mg",i:6,u:"mg/L"},
+ {nombre:"Na",i:7,u:"mg/L"},
+ {nombre:"Fe",i:8,u:"mg/L"},
+ {nombre:"SO4",i:9,u:"mg/L"},
+ {nombre:"CO3",i:10,u:"mg/L"},
+ {nombre:"HCO3",i:11,u:"mg/L"},
+ {nombre:"pH",i:12},
+ {nombre:"Densidad",i:13,u:"g/ml"},
+ {nombre:"Conductividad",i:14,u:"µS/cm"},
+ {nombre:"Turbidez",i:15,u:"NTU"},
+ {nombre:"Si",i:16,u:"mg/L"}
+],
+"302":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"B",i:2,u:"mg/kg"},
+ {nombre:"Ca",i:3,u:"mg/kg"},
+ {nombre:"K",i:4,u:"mg/kg"},
+ {nombre:"Li",i:5,u:"mg/kg"},
+ {nombre:"Mg",i:6,u:"mg/kg"},
+ {nombre:"Na",i:7,u:"mg/kg"},
+ {nombre:"Densidad",i:8,u:"g/ml"},
+ {nombre:"pH",i:9}
+],
+"402-403":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"B",i:2,u:"mg/L"},
+ {nombre:"Ca",i:3,u:"mg/L"},
+ {nombre:"K",i:4,u:"mg/L"},
+ {nombre:"Li",i:5,u:"mg/L"},
+ {nombre:"Mg",i:6,u:"mg/L"},
+ {nombre:"Na",i:7,u:"mg/L"},
+ {nombre:"Fe",i:8,u:"mg/L"},
+ {nombre:"SO4",i:9,u:"mg/L"},
+ {nombre:"CO3",i:10,u:"mg/L"},
+ {nombre:"HCO3",i:11,u:"mg/L"},
+ {nombre:"pH",i:12},
+ {nombre:"Densidad",i:13,u:"g/ml"},
+ {nombre:"Conductividad",i:14,u:"µS/cm"}
+],
+"brine":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"Ca",i:2,u:"mg/L"},
+ {nombre:"K",i:3,u:"mg/L"},
+ {nombre:"Li",i:4,u:"mg/L"},
+ {nombre:"Mg",i:5,u:"mg/L"},
+ {nombre:"Na",i:6,u:"mg/L"},
+ {nombre:"SO4",i:7,u:"mg/L"},
+ {nombre:"CO3",i:8,u:"mg/L"},
+ {nombre:"HCO3",i:9,u:"mg/L"},
+ {nombre:"Cl",i:10,u:"mg/L"},
+ {nombre:"pH",i:11},
+ {nombre:"Densidad",i:12,u:"g/ml"}
+],
+"li2co3":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"Li2CO3 %",i:2,u:"%"},
+ {nombre:"Na",i:3,u:"mg/kg"},
+ {nombre:"K",i:4,u:"mg/kg"},
+ {nombre:"Ca",i:5,u:"mg/kg"},
+ {nombre:"Mg",i:6,u:"mg/kg"},
+ {nombre:"Fe",i:7,u:"mg/kg"},
+ {nombre:"Ni",i:8,u:"mg/kg"},
+ {nombre:"Mn",i:9,u:"mg/kg"},
+ {nombre:"Cu",i:10,u:"mg/kg"},
+ {nombre:"Zn",i:11,u:"mg/kg"},
+ {nombre:"pH",i:12}
+],
+"reporte_id":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"Ensayo",i:2},
+ {nombre:"Resultado",i:3},
+ {nombre:"Unidad",i:4},
+ {nombre:"Observaciones",i:5}
+]
+};
+
+const codigosSolidos=["CL","CM","MP","OS"];
+function detectarEstado(id,cod){
+ const up=(id||"").toUpperCase(),upc=(cod||"").toUpperCase();
+ if(codigosSolidos.some(c=>up.includes(c)||upc.includes(c)||up.endsWith("-S")))return"solido";
+ return"liquido";
+}
+function clean(v){return v?v.toString().trim():"";}
+
+/* =================== PROCESAR DATOS PEGADOS =================== */
+function procesarExcel(){
+ const raw=document.getElementById("excelData").value.trim();
+ if(!raw){alert("Pegá filas desde Excel.");return;}
+ const rows=raw.replace(/\r/g,"").split(/\n/).filter(r=>r.trim()!="");
+ const parsed=rows.map(l=>l.split(/\t|;/).map(x=>x.trim()));
+ const plantilla=plantillas[document.getElementById("sheetType").value]||plantillas["203"];
+ let salida="";
+ parsed.forEach(r=>{
+   if(r.length<2)return;
+   let id=clean(r[0]),cod=clean(r[1]);
+   if(!id&&!cod)return;
+   const estado=detectarEstado(id,cod);
+   salida+=`🔹 Identificación: ${id||"N/D"}\n🔹 Código: ${cod||"N/D"}\n`;
+   plantilla.forEach((c,j)=>{
+     if(j<2)return;
+     let v=r[c.i]||"";
+     if(!v&&v.toUpperCase()!="N/D")return;
+     let u=c.u||"";
+     if(u=="mg/L"&&estado=="solido")u="mg/kg";
+     salida+=`• ${c.nombre}: ${v}${u?" "+u:""}\n`;
+   });
+   salida+="-------------------------\n";
+ });
+ document.getElementById("salida").textContent=salida||"No hay datos válidos.";
+}
+
+/* =================== FUNCIONES UTILITARIAS =================== */
+async function pegarDesdePortapapeles(){try{document.getElementById("excelData").value=await navigator.clipboard.readText();}catch{alert("Pegá manualmente.")}}
+function copiarSalida(){const t=document.getElementById("salida").textContent;if(!t.trim())return alert("Nada para copiar.");navigator.clipboard.writeText(t).then(()=>alert("Copiado ✅"))}
+function abrirWhatsappPrimerRegistro(){const t=document.getElementById("salida").textContent.trim();if(!t)return alert("Nada para enviar.");const f=t.split("-------------------------")[0];window.open("https://web.whatsapp.com/send?text="+encodeURIComponent(f),"_blank")}
+function limpiar(){document.getElementById("excelData").value="";document.getElementById("salida").textContent="";}
+
+/* =================== SECCIÓN MANUAL =================== */
+const analitos=["B","Ca","K","Li","Mg","Na","Fe","SO4","CO3","HCO3","Si","Cl","Ni","Mn","Cu","Zn","pH","Densidad","Conductividad","Turbidez","Li2CO3 %","Ensayo","Resultado","Unidad","Observaciones"];
+function crearCheckbox(){
+ const c=document.getElementById("analitosSelect");c.innerHTML="";
+ analitos.forEach(a=>{c.innerHTML+=`<label><input type="checkbox" value="${a}" onchange="mostrarCampos()"> ${a}</label>`});
+}
+function mostrarCampos(){
+ const sel=[...document.querySelectorAll("#analitosSelect input:checked")].map(i=>i.value);
+ const cont=document.getElementById("analitosCampos");cont.innerHTML="";
+ sel.forEach(a=>cont.innerHTML+=`<label>${a}</label><input id="a_${a.replace(/\W+/g,'')}" placeholder="${a}">`);
+}
+function generarManual(){
+ const tipo=document.getElementById("tipoManual").value;
+ const id=document.getElementById("identManual").value.trim();
+ const cod=document.getElementById("codigoManual").value.trim();
+ if(!id||!cod)return alert("Completá Identificación y Código.");
+ const sel=[...document.querySelectorAll("#analitosSelect input:checked")].map(i=>i.value);
+ let out=`🔹 Identificación: ${id}\n🔹 Código: ${cod}\n`;
+ sel.forEach(a=>{
+   const v=document.getElementById("a_"+a.replace(/\W+/g,'')).value.trim();
+   if(!v&&v.toUpperCase()!="N/D")return;
+   let u="";
+   if(["B","Ca","K","Li","Mg","Na","Fe","SO4","CO3","HCO3","Si","Cl","Ni","Mn","Cu","Zn"].includes(a))u=tipo=="solido"?"mg/kg":"mg/L";
+   else if(a=="Densidad")u="g/ml";
+   else if(a=="Conductividad")u="µS/cm";
+   else if(a=="Turbidez")u="NTU";
+   out+=`• ${a}: ${v}${u?" "+u:""}\n`;
+ });
+ out+="-------------------------";
+ document.getElementById("salidaManual").textContent=out;
+ document.getElementById("salida").textContent=out;
+}
+function copiarManual(){const t=document.getElementById("salidaManual").textContent;if(!t.trim())return;navigator.clipboard.writeText(t).then(()=>alert("Copiado ✅"))}
+function whatsappManual(){const t=document.getElementById("salidaManual").textContent.trim();if(!t)return;window.open("https://web.whatsapp.com/send?text="+encodeURIComponent(t),"_blank")}
+function borrarManual(){document.getElementById("analitosCampos").innerHTML="";document.getElementById("identManual").value="";document.getElementById("codigoManual").value="";document.querySelectorAll("#analitosSelect input").forEach(c=>c.checked=false);document.getElementById("salidaManual").textContent="";}
+crearCheckbox();
+</script>
+</body>
+</html>
