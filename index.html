@@ -24,7 +24,7 @@ legend{font-weight:700}
 </style>
 </head>
 <body>
-<header><h1>Generador de Datos — Creado por William Campal</h1></header>
+<header><h1>Generador de Datos — Creado por William Campal 08/11/2025</h1></header>
 
 <div class="container">
 
@@ -113,36 +113,65 @@ legend{font-weight:700}
 /* =================== CONFIGURACIÓN DE PLANTILLAS =================== */
 const plantillas={
 "203":[
- {nombre:"Identificación",i:0},
- {nombre:"Código",i:1},
- {nombre:"B",i:2,u:"mg/L"},
- {nombre:"Ca",i:3,u:"mg/L"},
- {nombre:"K",i:4,u:"mg/L"},
- {nombre:"Li",i:5,u:"mg/L"},
- {nombre:"Mg",i:6,u:"mg/L"},
- {nombre:"Na",i:7,u:"mg/L"},
- {nombre:"Fe",i:8,u:"mg/L"},
- {nombre:"SO4",i:9,u:"mg/L"},
- {nombre:"CO3",i:10,u:"mg/L"},
- {nombre:"HCO3",i:11,u:"mg/L"},
- {nombre:"pH",i:12},
- {nombre:"Densidad",i:13,u:"g/ml"},
- {nombre:"Conductividad",i:14,u:"µS/cm"},
- {nombre:"Turbidez",i:15,u:"NTU"},
- {nombre:"Si",i:16,u:"mg/L"}
+  { nombre:"Identificación", i:0 },
+  { nombre:"Código", i:1 },
+
+  { nombre:"B", i:2, u:"ppm" },
+  { nombre:"Ca", i:3, u:"ppm" },
+  { nombre:"K", i:4, u:"ppm" },
+  { nombre:"Mg", i:5, u:"ppm" },
+  { nombre:"Na", i:6, u:"ppm" },
+
+  { nombre:"Humedad", i:7, u:"%" },
+  { nombre:"Fe", i:8, u:"ppm" },
+  { nombre:"SO4", i:9, u:"ppm" },
+  { nombre:"CO3", i:10, u:"ppm" },
+  { nombre:"HCO3", i:11, u:"ppm" },
+  { nombre:"OH", i:12, u:"ppm" },
+
+  { nombre:"pH", i:13 },
+  { nombre:"densidad", i:14, u:"g/ml" },
+  { nombre:"Conductividad", i:15, u:"µS/cm" },
+  { nombre:"Dureza Total", i:16, u:"ppm" },
+  { nombre:"Turbidez", i:17, u:"NTU" },
+  { nombre:"Si/ICP", i:18, u:"ppm" },
+  { nombre:"OD", i:19, u:"%" },
+  { nombre:"Pureza", i:20, u:"%" }
 ],
+
 "302":[
- {nombre:"Identificación",i:0},
- {nombre:"Código",i:1},
- {nombre:"B",i:2,u:"mg/kg"},
- {nombre:"Ca",i:3,u:"mg/kg"},
- {nombre:"K",i:4,u:"mg/kg"},
- {nombre:"Li",i:5,u:"mg/kg"},
- {nombre:"Mg",i:6,u:"mg/kg"},
- {nombre:"Na",i:7,u:"mg/kg"},
- {nombre:"Densidad",i:8,u:"g/ml"},
- {nombre:"pH",i:9}
+  { nombre:"Identificación", i:0 },
+  { nombre:"Código", i:1 },
+
+  { nombre:"B", i:2, u:"ppm" },
+  { nombre:"Ca", i:3, u:"ppm" },
+  { nombre:"K", i:4, u:"ppm" },
+  { nombre:"Li", i:5, u:"ppm" },
+  { nombre:"Mg", i:6, u:"ppm" },
+  { nombre:"Na", i:7, u:"ppm" },
+
+  { nombre:"densidad", i:8, u:"g/ml" },
+  { nombre:"pH", i:9 },
+
+  { nombre:"Na2CO3", i:10, u:"%" },
+  { nombre:"temperatura", i:11, u:"°C" },
+
+  { nombre:"CO3", i:12, u:"ppm" },
+  { nombre:"HCO3", i:13, u:"ppm" },
+  { nombre:"NaOH", i:14, u:"ppm" },
+  { nombre:"OH", i:15, u:"ppm" },
+  { nombre:"Fe", i:16, u:"ppm" },
+
+  { nombre:"% Sólidos", i:17, u:"%" },
+  { nombre:"Conductividad", i:18, u:"µS/cm" },
+  { nombre:"TDS", i:19, u:"ppm" },
+  { nombre:"Cloruros", i:20, u:"%" },
+  { nombre:"Salinidad", i:21, u:"%" },
+  { nombre:"Turbidez", i:22, u:"NTU" },
+  { nombre:"Cloro Libre", i:23, u:"mg/L" },
+  { nombre:"OD", i:24, u:"%" }
 ],
+
 "402-403":[
  {nombre:"Identificación",i:0},
  {nombre:"Código",i:1},
@@ -160,6 +189,7 @@ const plantillas={
  {nombre:"Densidad",i:13,u:"g/ml"},
  {nombre:"Conductividad",i:14,u:"µS/cm"}
 ],
+
 "brine":[
  {nombre:"Identificación",i:0},
  {nombre:"Código",i:1},
@@ -175,6 +205,7 @@ const plantillas={
  {nombre:"pH",i:11},
  {nombre:"Densidad",i:12,u:"g/ml"}
 ],
+
 "li2co3":[
  {nombre:"Identificación",i:0},
  {nombre:"Código",i:1},
@@ -190,6 +221,7 @@ const plantillas={
  {nombre:"Zn",i:11,u:"mg/kg"},
  {nombre:"pH",i:12}
 ],
+
 "reporte_id":[
  {nombre:"Identificación",i:0},
  {nombre:"Código",i:1},
